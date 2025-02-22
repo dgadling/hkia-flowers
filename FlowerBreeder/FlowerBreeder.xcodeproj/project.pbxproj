@@ -1,0 +1,563 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		55AE7EF02D69640C002BD438 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 55AE7ED72D69640A002BD438 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 55AE7EDE2D69640A002BD438;
+			remoteInfo = FlowerBreeder;
+		};
+		55AE7EFA2D69640C002BD438 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 55AE7ED72D69640A002BD438 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 55AE7EDE2D69640A002BD438;
+			remoteInfo = FlowerBreeder;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		55AE7EDF2D69640A002BD438 /* FlowerBreeder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlowerBreeder.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		55AE7EEF2D69640C002BD438 /* FlowerBreederTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlowerBreederTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		55AE7EF92D69640C002BD438 /* FlowerBreederUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlowerBreederUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		55AE7EE12D69640A002BD438 /* FlowerBreeder */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FlowerBreeder;
+			sourceTree = "<group>";
+		};
+		55AE7EF22D69640C002BD438 /* FlowerBreederTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FlowerBreederTests;
+			sourceTree = "<group>";
+		};
+		55AE7EFC2D69640C002BD438 /* FlowerBreederUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FlowerBreederUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		55AE7EDC2D69640A002BD438 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		55AE7EEC2D69640C002BD438 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		55AE7EF62D69640C002BD438 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		55AE7ED62D69640A002BD438 = {
+			isa = PBXGroup;
+			children = (
+				55AE7EE12D69640A002BD438 /* FlowerBreeder */,
+				55AE7EF22D69640C002BD438 /* FlowerBreederTests */,
+				55AE7EFC2D69640C002BD438 /* FlowerBreederUITests */,
+				55AE7EE02D69640A002BD438 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		55AE7EE02D69640A002BD438 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				55AE7EDF2D69640A002BD438 /* FlowerBreeder.app */,
+				55AE7EEF2D69640C002BD438 /* FlowerBreederTests.xctest */,
+				55AE7EF92D69640C002BD438 /* FlowerBreederUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		55AE7EDE2D69640A002BD438 /* FlowerBreeder */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 55AE7F032D69640C002BD438 /* Build configuration list for PBXNativeTarget "FlowerBreeder" */;
+			buildPhases = (
+				55AE7EDB2D69640A002BD438 /* Sources */,
+				55AE7EDC2D69640A002BD438 /* Frameworks */,
+				55AE7EDD2D69640A002BD438 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				55AE7EE12D69640A002BD438 /* FlowerBreeder */,
+			);
+			name = FlowerBreeder;
+			packageProductDependencies = (
+			);
+			productName = FlowerBreeder;
+			productReference = 55AE7EDF2D69640A002BD438 /* FlowerBreeder.app */;
+			productType = "com.apple.product-type.application";
+		};
+		55AE7EEE2D69640C002BD438 /* FlowerBreederTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 55AE7F062D69640C002BD438 /* Build configuration list for PBXNativeTarget "FlowerBreederTests" */;
+			buildPhases = (
+				55AE7EEB2D69640C002BD438 /* Sources */,
+				55AE7EEC2D69640C002BD438 /* Frameworks */,
+				55AE7EED2D69640C002BD438 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				55AE7EF12D69640C002BD438 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				55AE7EF22D69640C002BD438 /* FlowerBreederTests */,
+			);
+			name = FlowerBreederTests;
+			packageProductDependencies = (
+			);
+			productName = FlowerBreederTests;
+			productReference = 55AE7EEF2D69640C002BD438 /* FlowerBreederTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		55AE7EF82D69640C002BD438 /* FlowerBreederUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 55AE7F092D69640C002BD438 /* Build configuration list for PBXNativeTarget "FlowerBreederUITests" */;
+			buildPhases = (
+				55AE7EF52D69640C002BD438 /* Sources */,
+				55AE7EF62D69640C002BD438 /* Frameworks */,
+				55AE7EF72D69640C002BD438 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				55AE7EFB2D69640C002BD438 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				55AE7EFC2D69640C002BD438 /* FlowerBreederUITests */,
+			);
+			name = FlowerBreederUITests;
+			packageProductDependencies = (
+			);
+			productName = FlowerBreederUITests;
+			productReference = 55AE7EF92D69640C002BD438 /* FlowerBreederUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		55AE7ED72D69640A002BD438 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					55AE7EDE2D69640A002BD438 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					55AE7EEE2D69640C002BD438 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 55AE7EDE2D69640A002BD438;
+					};
+					55AE7EF82D69640C002BD438 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 55AE7EDE2D69640A002BD438;
+					};
+				};
+			};
+			buildConfigurationList = 55AE7EDA2D69640A002BD438 /* Build configuration list for PBXProject "FlowerBreeder" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 55AE7ED62D69640A002BD438;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 55AE7EE02D69640A002BD438 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				55AE7EDE2D69640A002BD438 /* FlowerBreeder */,
+				55AE7EEE2D69640C002BD438 /* FlowerBreederTests */,
+				55AE7EF82D69640C002BD438 /* FlowerBreederUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		55AE7EDD2D69640A002BD438 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		55AE7EED2D69640C002BD438 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		55AE7EF72D69640C002BD438 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		55AE7EDB2D69640A002BD438 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		55AE7EEB2D69640C002BD438 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		55AE7EF52D69640C002BD438 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		55AE7EF12D69640C002BD438 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 55AE7EDE2D69640A002BD438 /* FlowerBreeder */;
+			targetProxy = 55AE7EF02D69640C002BD438 /* PBXContainerItemProxy */;
+		};
+		55AE7EFB2D69640C002BD438 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 55AE7EDE2D69640A002BD438 /* FlowerBreeder */;
+			targetProxy = 55AE7EFA2D69640C002BD438 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		55AE7F012D69640C002BD438 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		55AE7F022D69640C002BD438 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		55AE7F042D69640C002BD438 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"FlowerBreeder/Preview Content\"";
+				DEVELOPMENT_TEAM = H78QU2VYK7;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.toasterwaffles.FlowerBreeder;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		55AE7F052D69640C002BD438 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"FlowerBreeder/Preview Content\"";
+				DEVELOPMENT_TEAM = H78QU2VYK7;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.toasterwaffles.FlowerBreeder;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		55AE7F072D69640C002BD438 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H78QU2VYK7;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.toasterwaffles.FlowerBreederTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FlowerBreeder.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FlowerBreeder";
+			};
+			name = Debug;
+		};
+		55AE7F082D69640C002BD438 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H78QU2VYK7;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.toasterwaffles.FlowerBreederTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FlowerBreeder.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/FlowerBreeder";
+			};
+			name = Release;
+		};
+		55AE7F0A2D69640C002BD438 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H78QU2VYK7;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.toasterwaffles.FlowerBreederUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = FlowerBreeder;
+			};
+			name = Debug;
+		};
+		55AE7F0B2D69640C002BD438 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H78QU2VYK7;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.toasterwaffles.FlowerBreederUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = FlowerBreeder;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		55AE7EDA2D69640A002BD438 /* Build configuration list for PBXProject "FlowerBreeder" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55AE7F012D69640C002BD438 /* Debug */,
+				55AE7F022D69640C002BD438 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		55AE7F032D69640C002BD438 /* Build configuration list for PBXNativeTarget "FlowerBreeder" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55AE7F042D69640C002BD438 /* Debug */,
+				55AE7F052D69640C002BD438 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		55AE7F062D69640C002BD438 /* Build configuration list for PBXNativeTarget "FlowerBreederTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55AE7F072D69640C002BD438 /* Debug */,
+				55AE7F082D69640C002BD438 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		55AE7F092D69640C002BD438 /* Build configuration list for PBXNativeTarget "FlowerBreederUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55AE7F0A2D69640C002BD438 /* Debug */,
+				55AE7F0B2D69640C002BD438 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 55AE7ED72D69640A002BD438 /* Project object */;
+}
