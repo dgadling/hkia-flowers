@@ -23,24 +23,36 @@ class BroadcastManager: ObservableObject {
     func startBroadcast() {
         guard !isRecording else { return }
         
-        // Check authorization first
+        print("BroadcastManager: Starting capture...")
+        
+        #if targetEnvironment(simulator)
+        print("BroadcastManager: Screen recording is not supported in the iOS Simulator")
+        handleError(BroadcastError.captureError("Screen recording is not supported in the iOS Simulator"))
+        return
+        #endif
+        
+        // Configure recorder
+        recorder.isMicrophoneEnabled = false
+        recorder.isCameraEnabled = false
+        
         guard recorder.isAvailable else {
-            frameDelegate?.didFailWithError(BroadcastError.notAuthorized)
+            print("BroadcastManager: Recorder not available")
+            handleError(BroadcastError.notAuthorized)
             return
         }
-        
-        recorder.isMicrophoneEnabled = false // We don't need audio
         
         recorder.startCapture { [weak self] buffer, bufferType, error in
             guard let self = self else { return }
             
             if let error = error {
+                print("BroadcastManager: Capture error - \(error.localizedDescription)")
                 self.handleError(BroadcastError.captureError(error.localizedDescription))
                 return
             }
             
             // Only process video frames
             guard bufferType == .video else { return }
+            print("BroadcastManager: Received video frame")
             
             self.processingQueue.async {
                 self.processVideoFrame(buffer)
@@ -48,10 +60,12 @@ class BroadcastManager: ObservableObject {
             
         } completionHandler: { [weak self] error in
             if let error = error {
+                print("BroadcastManager: Start capture error - \(error.localizedDescription)")
                 self?.handleError(BroadcastError.captureError(error.localizedDescription))
                 return
             }
             
+            print("BroadcastManager: Capture started successfully")
             DispatchQueue.main.async {
                 self?.isRecording = true
             }
@@ -61,12 +75,16 @@ class BroadcastManager: ObservableObject {
     func stopBroadcast() {
         guard isRecording else { return }
         
+        print("BroadcastManager: Stopping capture...")
+        
         recorder.stopCapture { [weak self] error in
             if let error = error {
+                print("BroadcastManager: Stop capture error - \(error.localizedDescription)")
                 self?.handleError(BroadcastError.captureError(error.localizedDescription))
                 return
             }
             
+            print("BroadcastManager: Capture stopped successfully")
             DispatchQueue.main.async {
                 self?.isRecording = false
             }

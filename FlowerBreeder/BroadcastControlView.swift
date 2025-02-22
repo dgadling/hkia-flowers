@@ -9,8 +9,10 @@ struct BroadcastControlView: View {
         VStack {
             Button(action: {
                 if broadcastManager.isRecording {
+                    print("Stopping broadcast...")
                     broadcastManager.stopBroadcast()
                 } else {
+                    print("Starting broadcast...")
                     broadcastManager.frameDelegate = frameProcessor
                     broadcastManager.startBroadcast()
                 }
@@ -30,4 +32,4 @@ struct BroadcastControlView: View {
             }
         }
     }
-} 
+}

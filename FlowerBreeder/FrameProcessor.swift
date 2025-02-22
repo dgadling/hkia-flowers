@@ -4,8 +4,12 @@ import SwiftUI
 class FrameProcessor: ObservableObject, FrameProcessorDelegate {
     private let context = CIContext()
     @Published var lastProcessedImage: UIImage?
+    private var frameCount = 0
     
     func didCaptureFrame(_ image: CIImage) {
+        frameCount += 1
+        print("Processing frame #\(frameCount): \(image.extent.size)")
+        
         // Example processing - you can add your flower detection logic here
         if let cgImage = context.createCGImage(image, from: image.extent) {
             lastProcessedImage = UIImage(cgImage: cgImage)
