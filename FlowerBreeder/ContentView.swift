@@ -2,7 +2,7 @@ import SwiftUI
 import ReplayKit
 
 struct ContentView: View {
-    @StateObject private var broadcastManager = BroadcastManager()
+    @EnvironmentObject private var broadcastManager: BroadcastManager
     
     var body: some View {
         TabView {
@@ -17,9 +17,17 @@ struct ContentView: View {
                 }
         }
         .overlay(
-            BroadcastControlView(isRecording: $broadcastManager.isRecording)
+            BroadcastControlView()
+                .environmentObject(broadcastManager)
                 .padding()
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
         )
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .environmentObject(BroadcastManager())
     }
 } 

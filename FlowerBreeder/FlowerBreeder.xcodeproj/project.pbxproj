@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		55634FEE2D6975EF005ED45A /* BroadcastManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55634FED2D6975EF005ED45A /* BroadcastManager.swift */; };
+		55634FF02D697600005ED45A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55634FEF2D697600005ED45A /* ContentView.swift */; };
+		55634FF22D697612005ED45A /* FrameProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55634FF12D697612005ED45A /* FrameProcessor.swift */; };
+		55634FF62D69773A005ED45A /* BroadcastControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55634FF52D69773A005ED45A /* BroadcastControlView.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		55AE7EF02D69640C002BD438 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +31,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		55634FED2D6975EF005ED45A /* BroadcastManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BroadcastManager.swift; sourceTree = "<group>"; };
+		55634FEF2D697600005ED45A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		55634FF12D697612005ED45A /* FrameProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessor.swift; sourceTree = "<group>"; };
+		55634FF52D69773A005ED45A /* BroadcastControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BroadcastControlView.swift; sourceTree = "<group>"; };
 		55AE7EDF2D69640A002BD438 /* FlowerBreeder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlowerBreeder.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		55AE7EEF2D69640C002BD438 /* FlowerBreederTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlowerBreederTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		55AE7EF92D69640C002BD438 /* FlowerBreederUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FlowerBreederUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,6 +86,10 @@
 		55AE7ED62D69640A002BD438 = {
 			isa = PBXGroup;
 			children = (
+				55634FF52D69773A005ED45A /* BroadcastControlView.swift */,
+				55634FF12D697612005ED45A /* FrameProcessor.swift */,
+				55634FEF2D697600005ED45A /* ContentView.swift */,
+				55634FED2D6975EF005ED45A /* BroadcastManager.swift */,
 				55AE7EE12D69640A002BD438 /* FlowerBreeder */,
 				55AE7EF22D69640C002BD438 /* FlowerBreederTests */,
 				55AE7EFC2D69640C002BD438 /* FlowerBreederUITests */,
@@ -236,6 +251,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				55634FF02D697600005ED45A /* ContentView.swift in Sources */,
+				55634FF22D697612005ED45A /* FrameProcessor.swift in Sources */,
+				55634FF62D69773A005ED45A /* BroadcastControlView.swift in Sources */,
+				55634FEE2D6975EF005ED45A /* BroadcastManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
