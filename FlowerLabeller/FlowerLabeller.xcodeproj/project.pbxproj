@@ -6,8 +6,17 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		553C782C2D75224B003C7F8D /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 553C78292D75224B003C7F8D /* Metal.framework */; };
+		553C782D2D75224B003C7F8D /* MetalFX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 553C782A2D75224B003C7F8D /* MetalFX.framework */; };
+		553C782E2D75224B003C7F8D /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 553C782B2D75224B003C7F8D /* MetalKit.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		553C78042D751904003C7F8D /* FlowerLabeller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlowerLabeller.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		553C78292D75224B003C7F8D /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		553C782A2D75224B003C7F8D /* MetalFX.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalFX.framework; path = System/Library/Frameworks/MetalFX.framework; sourceTree = SDKROOT; };
+		553C782B2D75224B003C7F8D /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +32,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				553C782C2D75224B003C7F8D /* Metal.framework in Frameworks */,
+				553C782D2D75224B003C7F8D /* MetalFX.framework in Frameworks */,
+				553C782E2D75224B003C7F8D /* MetalKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +45,7 @@
 			isa = PBXGroup;
 			children = (
 				553C78062D751904003C7F8D /* FlowerLabeller */,
+				553C78282D75224B003C7F8D /* Frameworks */,
 				553C78052D751904003C7F8D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +56,16 @@
 				553C78042D751904003C7F8D /* FlowerLabeller.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		553C78282D75224B003C7F8D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				553C78292D75224B003C7F8D /* Metal.framework */,
+				553C782A2D75224B003C7F8D /* MetalFX.framework */,
+				553C782B2D75224B003C7F8D /* MetalKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

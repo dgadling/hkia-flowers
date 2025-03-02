@@ -50,13 +50,68 @@ struct ContentView: View {
     @State private var showingExportMessage = false
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
+            // Toolbar
+            HStack {
+                Button(action: {
+                    Task {
+                        await viewModel.selectDirectory()
+                    }
+                }) {
+                    Label("Select Directory", systemImage: "folder")
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                
+                Spacer()
+                
+                if !viewModel.imageURLs.isEmpty {
+                    Button(action: {
+                        Task {
+                            if let url = await viewModel.exportAnnotations() {
+                                print("Exported annotations to: \(url.path)")
+                            }
+                        }
+                    }) {
+                        Label("Export Annotations", systemImage: "square.and.arrow.up")
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
+                }
+            }
+            .padding()
+            
+            // Empty state
             if viewModel.imageURLs.isEmpty {
-                setupView
+                VStack(spacing: 20) {
+                    Image(systemName: "photo.on.rectangle.angled")
+                        .font(.system(size: 60))
+                        .foregroundColor(.secondary)
+                    Text("Select a directory containing JPG images to start labeling")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 workspaceView
             }
+            
+            // Status bar
+            HStack {
+                Text("Draw a rectangle around each flower and annotate it. Press Space to move to next image.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Spacer()
+                if !viewModel.imageURLs.isEmpty {
+                    Text("\(viewModel.imageAnnotations[viewModel.currentImageIndex].annotations.count) annotations")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 4)
         }
+        .background(Color(.windowBackgroundColor))
         .frame(minWidth: 800, minHeight: 600)
         .alert("Export Complete", isPresented: $showingExportMessage) {
             Button("OK", role: .cancel) { }
@@ -68,36 +123,30 @@ struct ContentView: View {
         .onAppear {
             // Set up keyboard shortcuts in our handler class
             keyboardEventHandler.setupShortcuts(keyboardHandler: keyboardHandler, viewModel: viewModel)
-        }
-    }
-    
-    private var setupView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "photo.on.rectangle.angled")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 100, height: 100)
-                .foregroundColor(.accentColor)
             
-            Text("Flower Labeller")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+            // Debug information
+            print("DEBUG: ContentView appeared")
             
-            Text("Select a directory containing JPG images to begin annotating")
-                .font(.headline)
-                .multilineTextAlignment(.center)
-                .padding()
+            // Check view model initialization
+            print("DEBUG: ViewModel state on ContentView appear:")
+            print("DEBUG: - imageURLs count: \(viewModel.imageURLs.count)")
+            print("DEBUG: - currentImage: \(viewModel.currentImage != nil ? "exists" : "nil")")
             
-            Button("Select Directory") {
-                Task {
-                    await viewModel.selectDirectory()
+            // Check operating system version
+            let osVersion = ProcessInfo.processInfo.operatingSystemVersion
+            print("DEBUG: macOS version: \(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)")
+            
+            // Check bundle resources
+            if let resourcePath = Bundle.main.resourcePath {
+                print("DEBUG: Bundle resource path: \(resourcePath)")
+                do {
+                    let resources = try FileManager.default.contentsOfDirectory(atPath: resourcePath)
+                    print("DEBUG: Bundle resources: \(resources)")
+                } catch {
+                    print("DEBUG: Failed to list bundle resources: \(error)")
                 }
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .keyboardShortcut("o", modifiers: .command)
         }
-        .padding()
     }
     
     private var workspaceView: some View {
@@ -157,23 +206,7 @@ struct ContentView: View {
                         .padding(.bottom)
                 }
             }
-            
-            // Status bar
-            HStack {
-                Text("Draw a rectangle around each flower and annotate it. Press Space to move to next image.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Spacer()
-                if !viewModel.imageURLs.isEmpty {
-                    Text("\(viewModel.imageAnnotations[viewModel.currentImageIndex].annotations.count) annotations")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
-            .padding(.horizontal)
-            .padding(.bottom, 4)
         }
-        .background(Color(.windowBackgroundColor))
     }
 }
 

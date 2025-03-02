@@ -4,6 +4,7 @@ struct ImageDrawingView: NSViewRepresentable {
     @ObservedObject var viewModel: ImageAnnotationViewModel
     
     func makeNSView(context: Context) -> NSImageView {
+        print("DEBUG: Creating NSImageView in ImageDrawingView")
         let imageView = DraggableImageView()
         imageView.imageScaling = .scaleProportionallyUpOrDown
         imageView.delegate = context.coordinator
@@ -112,8 +113,23 @@ struct ImageDrawingView: NSViewRepresentable {
         }
         
         private func setup() {
+            print("DEBUG: Setting up DraggableImageView")
             self.wantsLayer = true
-            self.layer?.backgroundColor = NSColor.black.cgColor
+            
+            // Try to create the layer explicitly to avoid Metal issues
+            if self.layer == nil {
+                let layer = CALayer()
+                layer.backgroundColor = NSColor.black.cgColor
+                self.layer = layer
+                print("DEBUG: Explicitly created CALayer for DraggableImageView")
+            } else {
+                self.layer?.backgroundColor = NSColor.black.cgColor
+                print("DEBUG: Using existing layer for DraggableImageView")
+            }
+            
+            // Log the layer-backing status
+            print("DEBUG: Layer-backed view: \(self.wantsLayer)")
+            print("DEBUG: Layer: \(self.layer != nil ? "exists" : "nil")")
         }
         
         override func mouseDown(with event: NSEvent) {
