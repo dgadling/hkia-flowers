@@ -55,7 +55,7 @@ class FileManagerService: ObservableObject {
         }
     }
     
-    /// Check app group container for new files and copy them to Documents directory
+    /// Check app group container for new files and move them to Documents directory
     func syncFromAppGroupContainer() {
         // Get app group container
         guard let appGroupContainer = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.toasterwaffles.FlowerFriend") else {
@@ -82,12 +82,12 @@ class FileManagerService: ObservableObject {
                 return fileExtension == "jpg" || fileExtension == "jpeg" || fileExtension == "png"
             }
             
-            // Copy each file to Documents directory
+            // Move each file to Documents directory
             for fileURL in imageFiles {
-                let _ = FileManager.copyToDocuments(from: fileURL, toFolder: capturedFramesFolder)
+                let _ = FileManager.moveToDocuments(from: fileURL, toFolder: capturedFramesFolder)
             }
             
-            logger.info("Copied \(imageFiles.count) images from app group container to Documents")
+            logger.info("Moved \(imageFiles.count) images from app group container to Documents")
             
             // Refresh the list of captured frames
             refreshCapturedFrames()
@@ -145,8 +145,8 @@ class FileManagerService: ObservableObject {
         logger.info("Captured frames directory: \(capturedFramesDirectory.path)")
     }
     
-    /// Perform a thorough file system scan and copy all found images to Documents
-    func findAndCopyAllImages() -> String {
+    /// Perform a thorough file system scan and move all found images to Documents
+    func findAndMoveAllImages() -> String {
         var report = "Starting file search...\n"
         let fileManager = FileManager.default
         
@@ -161,7 +161,7 @@ class FileManagerService: ObservableObject {
             ]
             
             for directory in directoriesToCheck {
-                report += scanAndCopyFromDirectory(directory)
+                report += scanAndMoveFromDirectory(directory)
             }
         } else {
             report += "❌ Could not access app group container\n"
@@ -170,10 +170,10 @@ class FileManagerService: ObservableObject {
         // Also check app's main bundle for any pre-bundled images
         if let bundleURL = Bundle.main.resourceURL {
             report += "Checking bundle at: \(bundleURL.path)\n"
-            report += scanAndCopyFromDirectory(bundleURL)
+            report += scanAndMoveFromDirectory(bundleURL)
         }
         
-        // Refresh the list after all copying is done
+        // Refresh the list after all moving is done
         refreshCapturedFrames()
         
         report += "File operations complete. Found \(capturedFrames.count) images in Documents directory.\n"
@@ -181,8 +181,8 @@ class FileManagerService: ObservableObject {
         return report
     }
     
-    /// Scan a directory for images and copy them to Documents
-    private func scanAndCopyFromDirectory(_ directory: URL) -> String {
+    /// Scan a directory for images and move them to Documents
+    private func scanAndMoveFromDirectory(_ directory: URL) -> String {
         var report = "Scanning: \(directory.path)\n"
         
         do {
@@ -203,16 +203,16 @@ class FileManagerService: ObservableObject {
             report += "Found \(imageFiles.count) images\n"
             
             for fileURL in imageFiles {
-                if let destinationURL = FileManager.copyToDocuments(from: fileURL, toFolder: capturedFramesFolder) {
-                    report += "✅ Copied: \(fileURL.lastPathComponent) to \(destinationURL.path)\n"
+                if let destinationURL = FileManager.moveToDocuments(from: fileURL, toFolder: capturedFramesFolder) {
+                    report += "✅ Moved: \(fileURL.lastPathComponent) to \(destinationURL.path)\n"
                 } else {
-                    report += "❌ Failed to copy: \(fileURL.lastPathComponent)\n"
+                    report += "❌ Failed to move: \(fileURL.lastPathComponent)\n"
                 }
             }
             
             // Recursively check subdirectories
             for fileURL in fileURLs where fileURL.hasDirectoryPath {
-                report += scanAndCopyFromDirectory(fileURL)
+                report += scanAndMoveFromDirectory(fileURL)
             }
             
         } catch {
@@ -220,5 +220,48 @@ class FileManagerService: ObservableObject {
         }
         
         return report
+    }
+    
+    /// Delete all files in the captured frames directory
+    func deleteAllCapturedFrames() -> String {
+        var report = "Starting deletion of captured frames...\n"
+        let documentsDirectory = FileManager.documentsDirectory
+        let capturedFramesDirectory = documentsDirectory.appendingPathComponent(capturedFramesFolder, isDirectory: true)
+        
+        do {
+            // Get all files in the captured_frames directory
+            let fileURLs = try FileManager.default.contentsOfDirectory(
+                at: capturedFramesDirectory,
+                includingPropertiesForKeys: nil
+            )
+            
+            if fileURLs.isEmpty {
+                report += "No files found to delete.\n"
+            } else {
+                report += "Found \(fileURLs.count) files to delete.\n"
+                
+                // Delete each file
+                for fileURL in fileURLs {
+                    do {
+                        try FileManager.default.removeItem(at: fileURL)
+                        report += "✅ Deleted: \(fileURL.lastPathComponent)\n"
+                    } catch {
+                        report += "❌ Failed to delete \(fileURL.lastPathComponent): \(error.localizedDescription)\n"
+                        logger.error("Failed to delete file: \(error.localizedDescription)")
+                    }
+                }
+            }
+            
+            // Refresh the list after deletion
+            refreshCapturedFrames()
+            
+            report += "Deletion complete. Remaining files: \(capturedFrames.count)\n"
+            logger.info("\(report)")
+            return report
+        } catch {
+            report += "❌ Error listing files for deletion: \(error.localizedDescription)\n"
+            logger.error("Failed to list files for deletion: \(error.localizedDescription)")
+            return report
+        }
     }
 } 

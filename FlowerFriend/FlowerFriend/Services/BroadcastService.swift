@@ -346,9 +346,11 @@ class BroadcastService: ObservableObject {
     
     // Developer mode functionality
     func getSavedFrames() -> [URL] {
+        // First check app group container
         let framesDir = containerURL.appendingPathComponent("captured_frames", isDirectory: true)
-        logger.debug("Getting saved frames from: \(framesDir.path)")
+        var allFrames: [URL] = []
         
+        logger.debug("Checking for frames in app group container: \(framesDir.path)")
         do {
             let fileURLs = try FileManager.default.contentsOfDirectory(
                 at: framesDir,
@@ -356,17 +358,45 @@ class BroadcastService: ObservableObject {
             )
             
             let jpgFiles = fileURLs.filter { $0.pathExtension == "jpg" }
-            logger.info("Found \(jpgFiles.count) saved frame(s)")
-            return jpgFiles
+            logger.debug("Found \(jpgFiles.count) frames in app group container")
+            allFrames.append(contentsOf: jpgFiles)
         } catch {
-            logger.error("❌ Failed to list saved frames: \(error.localizedDescription)")
-            return []
+            logger.error("❌ Failed to list frames from app group container: \(error.localizedDescription)")
         }
+        
+        // Now check Documents directory
+        if let documentDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let documentsFramesDir = documentDir.appendingPathComponent("captured_frames", isDirectory: true)
+            
+            logger.debug("Checking for frames in Documents directory: \(documentsFramesDir.path)")
+            
+            do {
+                // Check if directory exists
+                if FileManager.default.fileExists(atPath: documentsFramesDir.path) {
+                    let fileURLs = try FileManager.default.contentsOfDirectory(
+                        at: documentsFramesDir,
+                        includingPropertiesForKeys: nil
+                    )
+                    
+                    let jpgFiles = fileURLs.filter { $0.pathExtension == "jpg" }
+                    logger.debug("Found \(jpgFiles.count) frames in Documents directory")
+                    allFrames.append(contentsOf: jpgFiles)
+                } else {
+                    logger.debug("Documents/captured_frames directory doesn't exist yet")
+                }
+            } catch {
+                logger.error("❌ Failed to list frames from Documents directory: \(error.localizedDescription)")
+            }
+        }
+        
+        logger.info("Found \(allFrames.count) total frame(s)")
+        return allFrames
     }
     
     func clearSavedFrames() {
+        // Clear from app group container
         let framesDir = containerURL.appendingPathComponent("captured_frames", isDirectory: true)
-        logger.info("Clearing saved frames from: \(framesDir.path)")
+        logger.info("Clearing frames from app group container: \(framesDir.path)")
         
         do {
             let fileURLs = try FileManager.default.contentsOfDirectory(
@@ -374,21 +404,50 @@ class BroadcastService: ObservableObject {
                 includingPropertiesForKeys: nil
             )
             
-            logger.debug("Found \(fileURLs.count) files to delete")
+            logger.debug("Found \(fileURLs.count) files to delete in app group container")
             
             for url in fileURLs {
                 do {
                     try FileManager.default.removeItem(at: url)
-                    logger.debug("Deleted: \(url.lastPathComponent)")
+                    logger.debug("Deleted from app group: \(url.lastPathComponent)")
                 } catch {
                     logger.error("❌ Failed to delete file \(url.lastPathComponent): \(error.localizedDescription)")
                 }
             }
-            
-            logger.info("✅ Finished clearing saved frames")
         } catch {
-            logger.error("❌ Failed to list files for deletion: \(error.localizedDescription)")
+            logger.error("❌ Failed to list files for deletion in app group: \(error.localizedDescription)")
         }
+        
+        // Also clear from Documents directory
+        if let documentDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let documentsFramesDir = documentDir.appendingPathComponent("captured_frames", isDirectory: true)
+            
+            logger.info("Clearing frames from Documents directory: \(documentsFramesDir.path)")
+            
+            do {
+                if FileManager.default.fileExists(atPath: documentsFramesDir.path) {
+                    let fileURLs = try FileManager.default.contentsOfDirectory(
+                        at: documentsFramesDir,
+                        includingPropertiesForKeys: nil
+                    )
+                    
+                    logger.debug("Found \(fileURLs.count) files to delete in Documents directory")
+                    
+                    for url in fileURLs {
+                        do {
+                            try FileManager.default.removeItem(at: url)
+                            logger.debug("Deleted from Documents: \(url.lastPathComponent)")
+                        } catch {
+                            logger.error("❌ Failed to delete file \(url.lastPathComponent): \(error.localizedDescription)")
+                        }
+                    }
+                }
+            } catch {
+                logger.error("❌ Failed to list files for deletion in Documents: \(error.localizedDescription)")
+            }
+        }
+        
+        logger.info("✅ Finished clearing all saved frames")
     }
     
     // Access saved frames as images

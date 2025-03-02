@@ -390,6 +390,9 @@ struct FileManagerView: View {
     @State private var isRefreshing = false
     @State private var showFileReport = false
     @State private var fileReport = ""
+    @State private var showDeleteConfirmation = false
+    @State private var showDeletionReport = false
+    @State private var deletionReport = ""
     @Environment(\.dismiss) private var dismiss
     
     private let logger = Logger(subsystem: "com.toasterwaffles.FlowerFriend", category: "FileManagerView")
@@ -411,20 +414,40 @@ struct FileManagerView: View {
                         .padding(.bottom, 10)
                 }
                 
-                // Prominent find files button
-                Button(action: findAllFiles) {
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                        Text("Find Files")
-                            .fontWeight(.semibold)
+                // Action buttons
+                HStack(spacing: 20) {
+                    // Import files button
+                    Button(action: importAllFiles) {
+                        HStack {
+                            Image(systemName: "arrow.down.doc")
+                            Text("Import Files")
+                                .fontWeight(.semibold)
+                        }
+                        .frame(minWidth: 160)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
                     }
-                    .frame(minWidth: 200)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
+                    .disabled(isRefreshing)
+                    
+                    // Delete files button
+                    Button(action: {
+                        showDeleteConfirmation = true
+                    }) {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text("Delete All")
+                                .fontWeight(.semibold)
+                        }
+                        .frame(minWidth: 160)
+                        .padding()
+                        .background(Color.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                    }
+                    .disabled(isRefreshing || fileManager.capturedFrames.isEmpty)
                 }
-                .disabled(isRefreshing)
                 .padding(.bottom, 20)
                 
                 if fileManager.capturedFrames.isEmpty {
@@ -436,7 +459,7 @@ struct FileManagerView: View {
                         Text("No captured frames yet")
                             .font(.headline)
                         
-                        Text("Use the Find Files button to locate images")
+                        Text("Use the Import Files button to locate images")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -499,13 +522,37 @@ struct FileManagerView: View {
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .navigationTitle("File Search Report")
+                    .navigationTitle("File Import Report")
                     .navigationBarItems(
                         trailing: Button("Done") {
                             showFileReport = false
                         }
                     )
                 }
+            }
+            .sheet(isPresented: $showDeletionReport) {
+                NavigationView {
+                    ScrollView {
+                        Text(deletionReport)
+                            .font(.system(.body, design: .monospaced))
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .navigationTitle("File Deletion Report")
+                    .navigationBarItems(
+                        trailing: Button("Done") {
+                            showDeletionReport = false
+                        }
+                    )
+                }
+            }
+            .alert("Delete All Files", isPresented: $showDeleteConfirmation) {
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    deleteAllFiles()
+                }
+            } message: {
+                Text("Are you sure you want to delete all \(fileManager.capturedFrames.count) files? This cannot be undone.")
             }
         }
     }
@@ -528,17 +575,33 @@ struct FileManagerView: View {
         }
     }
     
-    private func findAllFiles() {
+    private func importAllFiles() {
         isRefreshing = true
         
         DispatchQueue.global(qos: .userInitiated).async {
-            // Run the comprehensive file finder
-            let report = fileManager.findAndCopyAllImages()
+            // Run the comprehensive file finder that now moves files
+            let report = fileManager.findAndMoveAllImages()
             
             // Update UI on main thread
             DispatchQueue.main.async {
                 fileReport = report
                 showFileReport = true
+                isRefreshing = false
+            }
+        }
+    }
+    
+    private func deleteAllFiles() {
+        isRefreshing = true
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Delete all captured frames
+            let report = fileManager.deleteAllCapturedFrames()
+            
+            // Update UI on main thread
+            DispatchQueue.main.async {
+                deletionReport = report
+                showDeletionReport = true
                 isRefreshing = false
             }
         }

@@ -177,38 +177,38 @@ class SampleHandler: RPBroadcastSampleHandler {
         let timestamp = Int(Date().timeIntervalSince1970)
         let filename = "frame_\(timestamp)_\(UUID().uuidString).jpg"
         
-        // First, save to the app group container for communication with the main app
-        let appGroupURL = containerURL.appendingPathComponent("captured_frames").appendingPathComponent(filename)
-        
-        // Compress and save the image
-        if let data = image.jpegData(compressionQuality: 0.8) {
-            do {
-                // Save to app group container first
-                try data.write(to: appGroupURL)
-                logger.debug("Successfully saved frame to app group: \(appGroupURL.lastPathComponent)")
-                
-                // Now save to a location that's accessible via Files app/Finder
-                // Get the Documents directory which is accessible through Files app
-                if let documentDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-                    let capturedFramesDir = documentDir.appendingPathComponent("captured_frames", isDirectory: true)
-                    
-                    // Create the directory if it doesn't exist
-                    try FileManager.default.createDirectory(at: capturedFramesDir, withIntermediateDirectories: true)
-                    
-                    // Create the file URL in the Documents directory
-                    let publicFileURL = capturedFramesDir.appendingPathComponent(filename)
-                    
-                    // Write the file
-                    try data.write(to: publicFileURL)
-                    logger.debug("Successfully saved frame to Documents directory: \(publicFileURL.path)")
-                } else {
-                    logger.error("❌ Could not access Documents directory")
-                }
-            } catch {
-                logger.error("❌ Failed to save frame: \(error.localizedDescription)")
-            }
-        } else {
+        // Compress the image
+        guard let data = image.jpegData(compressionQuality: 0.8) else {
             logger.error("❌ Failed to compress image to JPEG")
+            return
+        }
+        
+        do {
+            // Get the Documents directory which is accessible through Files app
+            if let documentDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+                let capturedFramesDir = documentDir.appendingPathComponent("captured_frames", isDirectory: true)
+                
+                // Create the directory if it doesn't exist
+                try FileManager.default.createDirectory(at: capturedFramesDir, withIntermediateDirectories: true)
+                
+                // Create the file URL in the Documents directory
+                let fileURL = capturedFramesDir.appendingPathComponent(filename)
+                
+                // Write the file
+                try data.write(to: fileURL)
+                logger.debug("✅ Successfully saved frame directly to Documents/captured_frames: \(fileURL.path)")
+            } else {
+                logger.error("❌ Could not access Documents directory")
+            }
+            
+            // Also save to app group container for backwards compatibility
+            // This will eventually be removed once the direct save is confirmed working
+            let appGroupURL = containerURL.appendingPathComponent("captured_frames").appendingPathComponent(filename)
+            try data.write(to: appGroupURL)
+            logger.debug("Saved duplicate frame to app group: \(appGroupURL.lastPathComponent)")
+            
+        } catch {
+            logger.error("❌ Failed to save frame: \(error.localizedDescription)")
         }
     }
     

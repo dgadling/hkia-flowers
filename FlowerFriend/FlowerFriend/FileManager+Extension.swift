@@ -24,12 +24,12 @@ extension FileManager {
         }
     }
     
-    /// Copy a file from the app group container to the documents directory
+    /// Move a file from the app group container to the documents directory
     /// - Parameters:
     ///   - sourceURL: Source file URL in the app group container
-    ///   - destinationFolder: Folder in documents directory to copy to
-    /// - Returns: The URL of the copied file, or nil if failed
-    static func copyToDocuments(from sourceURL: URL, toFolder destinationFolder: String) -> URL? {
+    ///   - destinationFolder: Folder in documents directory to move to
+    /// - Returns: The URL of the moved file, or nil if failed
+    static func moveToDocuments(from sourceURL: URL, toFolder destinationFolder: String) -> URL? {
         let docsDir = FileManager.documentsDirectory
         let destinationDirURL = docsDir.appendingPathComponent(destinationFolder, isDirectory: true)
         
@@ -42,16 +42,16 @@ extension FileManager {
         let destinationURL = destinationDirURL.appendingPathComponent(fileName)
         
         do {
-            // Remove the file if it already exists
+            // Remove the file if it already exists at destination
             if FileManager.default.fileExists(atPath: destinationURL.path) {
                 try FileManager.default.removeItem(at: destinationURL)
             }
             
-            // Copy the file
-            try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
+            // Move the file instead of copying
+            try FileManager.default.moveItem(at: sourceURL, to: destinationURL)
             return destinationURL
         } catch {
-            print("❌ Error copying file to documents: \(error.localizedDescription)")
+            print("❌ Error moving file to documents: \(error.localizedDescription)")
             return nil
         }
     }
