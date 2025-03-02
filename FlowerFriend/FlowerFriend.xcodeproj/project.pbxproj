@@ -49,11 +49,21 @@
 			);
 			target = 55A523902D74DA02001E44B7 /* BroadcastExtension */;
 		};
+		55CD8A842D7504CC0004A40B /* Exceptions for "FlowerFriend" folder in "FlowerFriend" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 55A5237B2D74D9E5001E44B7 /* FlowerFriend */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		55A5237E2D74D9E5001E44B7 /* FlowerFriend */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				55CD8A842D7504CC0004A40B /* Exceptions for "FlowerFriend" folder in "FlowerFriend" target */,
+			);
 			path = FlowerFriend;
 			sourceTree = "<group>";
 		};
@@ -374,7 +384,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"FlowerFriend/Preview Content\"";
 				DEVELOPMENT_TEAM = H78QU2VYK7;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FlowerFriend/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -406,7 +416,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"FlowerFriend/Preview Content\"";
 				DEVELOPMENT_TEAM = H78QU2VYK7;
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FlowerFriend/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -433,7 +443,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = H78QU2VYK7;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = BroadcastExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BroadcastExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -459,7 +469,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = H78QU2VYK7;
-				GENERATE_INFOPLIST_FILE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = BroadcastExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BroadcastExtension;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";

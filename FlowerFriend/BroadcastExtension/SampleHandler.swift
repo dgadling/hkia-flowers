@@ -212,14 +212,17 @@ class SampleHandler: RPBroadcastSampleHandler {
         do {
             // Create archiver with proper settings
             let data = NSMutableData()
-            let archiver = NSKeyedArchiver(forWritingWith: data)
-            archiver.requiresSecureCoding = false
+            let archiver = NSKeyedArchiver(requiringSecureCoding: false)
+            archiver.outputFormat = .binary
             archiver.encode(message, forKey: NSKeyedArchiveRootObjectKey)
             archiver.finishEncoding()
             
+            // Get the archived data
+            let archivedData = archiver.encodedData
+            
             // Save to container directory
             let messageURL = containerURL.appendingPathComponent("latest_frame.data")
-            try data.write(to: messageURL)
+            try archivedData.write(to: messageURL)
             
             // Update timestamp in UserDefaults so main app knows to check the file
             if let userDefaults = UserDefaults(suiteName: "group.com.toasterwaffles.FlowerFriend") {
@@ -248,14 +251,17 @@ class SampleHandler: RPBroadcastSampleHandler {
         do {
             // Create archiver with proper settings
             let data = NSMutableData()
-            let archiver = NSKeyedArchiver(forWritingWith: data)
-            archiver.requiresSecureCoding = false
+            let archiver = NSKeyedArchiver(requiringSecureCoding: false)
+            archiver.outputFormat = .binary
             archiver.encode(message, forKey: NSKeyedArchiveRootObjectKey)
             archiver.finishEncoding()
             
+            // Get the archived data
+            let archivedData = archiver.encodedData
+            
             // Save to container directory
             let messageURL = containerURL.appendingPathComponent("broadcast_status.data")
-            try data.write(to: messageURL)
+            try archivedData.write(to: messageURL)
             
             // Update timestamp in UserDefaults so main app knows to check the file
             if let userDefaults = UserDefaults(suiteName: "group.com.toasterwaffles.FlowerFriend") {
