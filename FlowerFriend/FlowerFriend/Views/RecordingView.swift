@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ReplayKit
+import os.log
 
 struct RecordingView: View {
     @EnvironmentObject private var broadcastService: BroadcastService
@@ -16,6 +17,9 @@ struct RecordingView: View {
     @State private var showBroadcastPicker = false
     @State private var showDevOptions = false
     @State private var newDetections: [FlowerDetector.DetectionResult] = []
+    @State private var navigateToFrameView = false
+    
+    private let logger = Logger(subsystem: "com.toasterwaffles.FlowerFriend", category: "RecordingView")
     
     enum DetectionMode {
         case auto // Automatically add detected flowers
@@ -23,7 +27,7 @@ struct RecordingView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 // Status header
                 statusHeader
@@ -50,6 +54,7 @@ struct RecordingView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         withAnimation {
+                            logger.debug("Toggling developer mode: \(!broadcastService.isDeveloperMode)")
                             broadcastService.isDeveloperMode.toggle()
                         }
                     }) {
@@ -61,6 +66,12 @@ struct RecordingView: View {
                 BroadcastPickerRepresentable()
                     .frame(width: 60, height: 60)
                     .padding(.top, 100)
+            }
+            .onAppear {
+                logger.debug("RecordingView appeared - status: \(broadcastService.status.displayText)")
+            }
+            .navigationDestination(isPresented: $navigateToFrameView) {
+                DeveloperFrameView()
             }
         }
     }
@@ -109,8 +120,19 @@ struct RecordingView: View {
                     .fill(Color.gray.opacity(0.2))
                     .frame(height: 300)
                     .overlay(
-                        Text("No frames received yet")
-                            .foregroundColor(.gray)
+                        VStack {
+                            Text("No frames received yet")
+                                .foregroundColor(.gray)
+                            
+                            if broadcastService.status == .active {
+                                Text("Broadcasting is active but no frames are being received.")
+                                    .font(.caption)
+                                    .foregroundColor(.orange)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+                                    .padding(.top, 8)
+                            }
+                        }
                     )
             }
         }
@@ -214,7 +236,10 @@ struct RecordingView: View {
         HStack {
             if broadcastService.status == .inactive {
                 // Start button
-                Button(action: { showBroadcastPicker = true }) {
+                Button(action: { 
+                    logger.debug("Start Recording button tapped - showing broadcast picker")
+                    showBroadcastPicker = true 
+                }) {
                     HStack {
                         Image(systemName: "record.circle")
                         Text("Start Recording")
@@ -228,10 +253,14 @@ struct RecordingView: View {
             } else {
                 // Stop button
                 Button(action: {
+                    logger.debug("Stop Recording button tapped")
+                    
                     // Fix: Use the RPScreenRecorder to stop the broadcast
                     RPScreenRecorder.shared().stopRecording() { previewViewController, error in
                         if let error = error {
-                            print("Error finishing broadcast: \(error.localizedDescription)")
+                            logger.error("❌ Error finishing broadcast: \(error.localizedDescription)")
+                        } else {
+                            logger.debug("Successfully stopped recording")
                         }
                     }
                 }) {
@@ -256,6 +285,7 @@ struct RecordingView: View {
             Button(action: {
                 withAnimation {
                     showDevOptions.toggle()
+                    logger.debug("Developer options toggle: \(showDevOptions)")
                 }
             }) {
                 HStack {
@@ -268,16 +298,19 @@ struct RecordingView: View {
             
             if showDevOptions {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Captured frames: \(broadcastService.getSavedFrames().count)")
+                    let frameCount = broadcastService.getSavedFrames().count
+                    Text("Captured frames: \(frameCount)")
                         .font(.subheadline)
                     
                     HStack {
                         Button("View Saved Frames") {
-                            // Will be implemented in a separate view
+                            logger.debug("View Saved Frames button tapped")
+                            navigateToFrameView = true
                         }
                         .buttonStyle(.borderedProminent)
                         
                         Button("Clear Saved Frames") {
+                            logger.debug("Clear Saved Frames button tapped")
                             broadcastService.clearSavedFrames()
                         }
                         .buttonStyle(.bordered)
@@ -299,14 +332,20 @@ struct RecordingView: View {
 // MARK: - UIKit Broadcast Picker
 
 struct BroadcastPickerRepresentable: UIViewRepresentable {
+    private let logger = Logger(subsystem: "com.toasterwaffles.FlowerFriend", category: "BroadcastPicker")
+    
     func makeUIView(context: Context) -> RPSystemBroadcastPickerView {
+        logger.debug("Creating broadcast picker view")
         let pickerView = RPSystemBroadcastPickerView(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
-        pickerView.preferredExtension = "com.example.FlowerFriend.BroadcastExtension"
+        pickerView.preferredExtension = "com.toasterwaffles.FlowerFriend.BroadcastExtension"
         pickerView.showsMicrophoneButton = false
         
         // Try to get the button to customize it
         if let button = pickerView.subviews.first(where: { $0 is UIButton }) as? UIButton {
             button.imageView?.tintColor = .systemRed
+            logger.debug("Successfully customized broadcast picker button")
+        } else {
+            logger.warning("Could not find broadcast picker button to customize")
         }
         
         return pickerView
