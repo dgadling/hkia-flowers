@@ -176,15 +176,34 @@ class SampleHandler: RPBroadcastSampleHandler {
     private func saveImageForTraining(_ image: UIImage) {
         let timestamp = Int(Date().timeIntervalSince1970)
         let filename = "frame_\(timestamp)_\(UUID().uuidString).jpg"
-        let fileURL = containerURL.appendingPathComponent("captured_frames").appendingPathComponent(filename)
         
-        logger.debug("Saving training frame to: \(fileURL.lastPathComponent)")
+        // First, save to the app group container for communication with the main app
+        let appGroupURL = containerURL.appendingPathComponent("captured_frames").appendingPathComponent(filename)
         
         // Compress and save the image
         if let data = image.jpegData(compressionQuality: 0.8) {
             do {
-                try data.write(to: fileURL)
-                logger.debug("Successfully saved frame: \(fileURL.lastPathComponent) (\(data.count) bytes)")
+                // Save to app group container first
+                try data.write(to: appGroupURL)
+                logger.debug("Successfully saved frame to app group: \(appGroupURL.lastPathComponent)")
+                
+                // Now save to a location that's accessible via Files app/Finder
+                // Get the Documents directory which is accessible through Files app
+                if let documentDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+                    let capturedFramesDir = documentDir.appendingPathComponent("captured_frames", isDirectory: true)
+                    
+                    // Create the directory if it doesn't exist
+                    try FileManager.default.createDirectory(at: capturedFramesDir, withIntermediateDirectories: true)
+                    
+                    // Create the file URL in the Documents directory
+                    let publicFileURL = capturedFramesDir.appendingPathComponent(filename)
+                    
+                    // Write the file
+                    try data.write(to: publicFileURL)
+                    logger.debug("Successfully saved frame to Documents directory: \(publicFileURL.path)")
+                } else {
+                    logger.error("❌ Could not access Documents directory")
+                }
             } catch {
                 logger.error("❌ Failed to save frame: \(error.localizedDescription)")
             }

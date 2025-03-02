@@ -18,6 +18,7 @@ struct RecordingView: View {
     @State private var showDevOptions = false
     @State private var newDetections: [FlowerDetector.DetectionResult] = []
     @State private var navigateToFrameView = false
+    @State private var showFileManager = false
     
     private let logger = Logger(subsystem: "com.toasterwaffles.FlowerFriend", category: "RecordingView")
     
@@ -40,6 +41,22 @@ struct RecordingView: View {
                 
                 // Control buttons
                 controlButtonsSection
+                
+                // File management button
+                Button(action: {
+                    showFileManager = true
+                }) {
+                    HStack {
+                        Image(systemName: "folder.badge.gearshape")
+                        Text("Manage Captured Files")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+                .padding(.top, 8)
                 
                 Spacer()
                 
@@ -66,6 +83,9 @@ struct RecordingView: View {
                 BroadcastPickerRepresentable()
                     .frame(width: 60, height: 60)
                     .padding(.top, 100)
+            }
+            .sheet(isPresented: $showFileManager) {
+                FileManagerView()
             }
             .onAppear {
                 logger.debug("RecordingView appeared - status: \(broadcastService.status.displayText)")
@@ -361,5 +381,179 @@ struct RecordingView_Previews: PreviewProvider {
         RecordingView()
             .environmentObject(BroadcastService())
             .environmentObject(FlowerInventory())
+    }
+}
+
+// New view that encapsulates our file manager functionality
+struct FileManagerView: View {
+    @StateObject private var fileManager = FileManagerService()
+    @State private var isRefreshing = false
+    @State private var showFileReport = false
+    @State private var fileReport = ""
+    @Environment(\.dismiss) private var dismiss
+    
+    private let logger = Logger(subsystem: "com.toasterwaffles.FlowerFriend", category: "FileManagerView")
+    
+    var body: some View {
+        NavigationView {
+            VStack {
+                // File path diagnostic info
+                Group {
+                    Text("File System Info")
+                        .font(.headline)
+                        .padding(.top)
+                    
+                    Text(fileManager.diagnosticInfo)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.bottom, 10)
+                }
+                
+                // Prominent find files button
+                Button(action: findAllFiles) {
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                        Text("Find Files")
+                            .fontWeight(.semibold)
+                    }
+                    .frame(minWidth: 200)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+                .disabled(isRefreshing)
+                .padding(.bottom, 20)
+                
+                if fileManager.capturedFrames.isEmpty {
+                    VStack(spacing: 20) {
+                        Image(systemName: "photo.fill")
+                            .font(.system(size: 60))
+                            .foregroundColor(.secondary)
+                        
+                        Text("No captured frames yet")
+                            .font(.headline)
+                        
+                        Text("Use the Find Files button to locate images")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    List {
+                        Section(header: Text("Captured Frames")) {
+                            ForEach(fileManager.capturedFrames, id: \.absoluteString) { fileURL in
+                                VStack(alignment: .leading) {
+                                    Text(fileURL.lastPathComponent)
+                                        .font(.headline)
+                                        .lineLimit(1)
+                                        .truncationMode(.middle)
+                                    
+                                    Text("Path: \(fileURL.path)")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(1)
+                                        .truncationMode(.middle)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("File Manager")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        refreshData()
+                    } label: {
+                        Label("Refresh", systemImage: "arrow.clockwise")
+                    }
+                    .disabled(isRefreshing)
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        openFilesApp()
+                    } label: {
+                        Label("Files", systemImage: "folder")
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Close") {
+                        dismiss()
+                    }
+                }
+            }
+            .onAppear {
+                // Sync when the view appears
+                refreshData()
+            }
+            .sheet(isPresented: $showFileReport) {
+                NavigationView {
+                    ScrollView {
+                        Text(fileReport)
+                            .font(.system(.body, design: .monospaced))
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .navigationTitle("File Search Report")
+                    .navigationBarItems(
+                        trailing: Button("Done") {
+                            showFileReport = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+    
+    private func refreshData() {
+        isRefreshing = true
+        
+        // Create a background task to perform the sync
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Sync from app group container
+            fileManager.syncFromAppGroupContainer()
+            
+            // Refresh captured frames list
+            fileManager.refreshCapturedFrames()
+            
+            // Update UI on main thread
+            DispatchQueue.main.async {
+                isRefreshing = false
+            }
+        }
+    }
+    
+    private func findAllFiles() {
+        isRefreshing = true
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Run the comprehensive file finder
+            let report = fileManager.findAndCopyAllImages()
+            
+            // Update UI on main thread
+            DispatchQueue.main.async {
+                fileReport = report
+                showFileReport = true
+                isRefreshing = false
+            }
+        }
+    }
+    
+    private func openFilesApp() {
+        // Construct a URL to the Files app
+        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let url = URL(string: "shareddocuments://\(documentsDirectory.path)")
+            
+            if let url = url, UIApplication.shared.canOpenURL(url) {
+                UIApplication.shared.open(url)
+            } else {
+                logger.error("Failed to open Files app")
+            }
+        }
     }
 } 

@@ -7,18 +7,15 @@
 
 import SwiftUI
 
+// ContentView now just a wrapper around MainTabView
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        MainTabView()
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(FlowerInventory())
+        .environmentObject(BroadcastService())
 }
