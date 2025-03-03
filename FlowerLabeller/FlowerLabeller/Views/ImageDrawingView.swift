@@ -29,6 +29,15 @@ struct ImageDrawingView: NSViewRepresentable {
         imageView.delegate = context.coordinator
         context.coordinator.imageView = imageView
         
+        // Add tracking area for mouse events
+        let trackingArea = NSTrackingArea(
+            rect: imageView.bounds,
+            options: [.activeAlways, .mouseEnteredAndExited, .mouseMoved, .enabledDuringMouseDrag],
+            owner: imageView,
+            userInfo: nil
+        )
+        imageView.addTrackingArea(trackingArea)
+        
         return imageView
     }
     
@@ -65,29 +74,41 @@ struct ImageDrawingView: NSViewRepresentable {
         
         init(_ parent: ImageDrawingView) {
             self.parent = parent
+            print("DEBUG: Coordinator initialized")
         }
         
         @objc func handleMouseDown(_ event: NSEvent) {
+            // Reduce verbosity by limiting debug output to essential information
+            
             guard let imageView = imageView,
-                  let image = imageView.image,
-                  let windowPoint = imageView.window?.convertPoint(fromScreen: event.locationInWindow),
-                  let viewPoint = imageView.convert(windowPoint, from: nil) as NSPoint? else {
+                  let image = imageView.image else {
+                print("DEBUG: handleMouseDown - imageView or image is nil")
                 return
             }
             
+            // Get location directly in the view's coordinate system
+            let viewPoint = imageView.convert(event.locationInWindow, from: nil)
+            
             // Convert view coordinates to image coordinates
             let imageFrame = imageView.imageFrame()
+            
             if !imageFrame.contains(viewPoint) {
                 return
             }
             
             // Calculate point relative to the image
+            let relativeX = (viewPoint.x - imageFrame.minX) / imageFrame.width
+            let relativeY = (viewPoint.y - imageFrame.minY) / imageFrame.height
+            
             let imagePoint = NSPoint(
-                x: (viewPoint.x - imageFrame.minX) * (image.size.width / imageFrame.width),
-                y: (viewPoint.y - imageFrame.minY) * (image.size.height / imageFrame.height)
+                x: relativeX * image.size.width,
+                y: relativeY * image.size.height
             )
             
-            startPoint = imagePoint
+            print("DEBUG: Mouse down at image point: \(imagePoint)")
+            
+            startPoint = viewPoint // Store the view point
+            
             // Use Task to call the actor-isolated method
             Task { @MainActor in
                 parent.viewModel.startDrawing(at: CGPoint(x: imagePoint.x, y: imagePoint.y))
@@ -95,28 +116,41 @@ struct ImageDrawingView: NSViewRepresentable {
         }
         
         @objc func handleMouseDragged(_ event: NSEvent) {
+            // Less verbose logging for mouse dragging
+            
             guard let imageView = imageView,
                   let image = imageView.image,
-                  let startPoint = startPoint,
-                  let windowPoint = imageView.window?.convertPoint(fromScreen: event.locationInWindow),
-                  let viewPoint = imageView.convert(windowPoint, from: nil) as NSPoint? else {
+                  let startPoint = startPoint else {
                 return
             }
+            
+            // Get location directly in the view's coordinate system
+            let viewPoint = imageView.convert(event.locationInWindow, from: nil)
             
             // Get image frame
             let imageFrame = imageView.imageFrame()
             
-            // Calculate dragged point relative to the image
-            let imagePoint = NSPoint(
-                x: (viewPoint.x - imageFrame.minX) * (image.size.width / imageFrame.width),
-                y: (viewPoint.y - imageFrame.minY) * (image.size.height / imageFrame.height)
+            // Calculate initial image point based on stored startPoint
+            let startRelativeX = (startPoint.x - imageFrame.minX) / imageFrame.width
+            let startRelativeY = (startPoint.y - imageFrame.minY) / imageFrame.height
+            let startImagePoint = CGPoint(
+                x: startRelativeX * image.size.width,
+                y: startRelativeY * image.size.height
+            )
+            
+            // Calculate current image point
+            let currentRelativeX = (viewPoint.x - imageFrame.minX) / imageFrame.width
+            let currentRelativeY = (viewPoint.y - imageFrame.minY) / imageFrame.height
+            let currentImagePoint = CGPoint(
+                x: currentRelativeX * image.size.width,
+                y: currentRelativeY * image.size.height
             )
             
             // Update the rectangle - use Task to call actor-isolated method
             Task { @MainActor in
                 parent.viewModel.updateDrawing(
-                    to: CGPoint(x: imagePoint.x, y: imagePoint.y),
-                    from: CGPoint(x: startPoint.x, y: startPoint.y)
+                    to: currentImagePoint,
+                    from: startImagePoint
                 )
             }
             
@@ -137,6 +171,7 @@ struct ImageDrawingView: NSViewRepresentable {
     // Custom NSImageView that handles drawing rectangles
     class DraggableImageView: NSImageView {
         var delegate: Coordinator?
+        private var trackingArea: NSTrackingArea?
         
         // Override intrinsicContentSize to prevent the image from influencing the view's size
         override var intrinsicContentSize: NSSize {
@@ -173,9 +208,73 @@ struct ImageDrawingView: NSViewRepresentable {
                 print("DEBUG: Using existing layer for DraggableImageView")
             }
             
+            // Enable mouse tracking
+            self.isEnabled = true  // Enable user interaction
+            // We don't need to set acceptsFirstResponder directly as we've overridden the property
+            
             // Log the layer-backing status
             print("DEBUG: Layer-backed view: \(self.wantsLayer)")
             print("DEBUG: Layer: \(self.layer != nil ? "exists" : "nil")")
+            print("DEBUG: isEnabled: \(self.isEnabled), acceptsFirstResponder: \(self.acceptsFirstResponder)")
+            
+            updateTrackingAreas()
+        }
+        
+        // Make view first responder when it appears
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            print("DEBUG: DraggableImageView moved to window")
+            
+            // Force a layout update when the view appears in a window
+            if let window = self.window {
+                print("DEBUG: Window exists, making view first responder")
+                window.makeFirstResponder(self)
+                self.needsLayout = true
+                self.needsDisplay = true
+                updateTrackingAreas()
+            } else {
+                print("DEBUG: No window found")
+            }
+        }
+        
+        // Maintain tracking areas when the view resizes
+        override func updateTrackingAreas() {
+            super.updateTrackingAreas()
+            
+            // Remove existing tracking area
+            if let trackingArea = self.trackingArea {
+                self.removeTrackingArea(trackingArea)
+            }
+            
+            // Create a new tracking area covering the entire view
+            let options: NSTrackingArea.Options = [
+                .activeAlways,
+                .mouseEnteredAndExited,
+                .mouseMoved,
+                .enabledDuringMouseDrag
+            ]
+            
+            let trackingArea = NSTrackingArea(
+                rect: self.bounds,
+                options: options,
+                owner: self,
+                userInfo: nil
+            )
+            
+            self.addTrackingArea(trackingArea)
+            self.trackingArea = trackingArea
+            
+            print("DEBUG: Updated tracking area to \(self.bounds)")
+        }
+        
+        // Override to make sure we can become first responder
+        override var acceptsFirstResponder: Bool {
+            return true
+        }
+        
+        // Ensure this view can receive mouse events
+        override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+            return true
         }
         
         override func layout() {
@@ -183,6 +282,7 @@ struct ImageDrawingView: NSViewRepresentable {
             // Ensure the image is properly scaled whenever the view size changes
             print("DEBUG: DraggableImageView layout called - view size changed to: \(self.bounds.size)")
             self.needsDisplay = true
+            updateTrackingAreas()
         }
         
         // Add a frameDidChange handler to respond to parent resize events
@@ -191,30 +291,42 @@ struct ImageDrawingView: NSViewRepresentable {
             if newSize.width > 0 && newSize.height > 0 {
                 print("DEBUG: Frame size changed to \(newSize.width) x \(newSize.height)")
                 self.needsDisplay = true
+                updateTrackingAreas()
             }
         }
         
-        override func viewDidMoveToWindow() {
-            super.viewDidMoveToWindow()
-            print("DEBUG: DraggableImageView moved to window")
-            // Force a layout update when the view appears in a window
-            if self.window != nil {
-                self.needsLayout = true
-                self.needsDisplay = true
-            }
+        // Mouse event callbacks
+        override func mouseEntered(with event: NSEvent) {
+            super.mouseEntered(with: event)
+            print("DEBUG: Mouse entered view")
         }
         
+        override func mouseExited(with event: NSEvent) {
+            super.mouseExited(with: event)
+            print("DEBUG: Mouse exited view")
+        }
+        
+        override func mouseMoved(with event: NSEvent) {
+            super.mouseMoved(with: event)
+            // Uncomment if you want to see mouse movements (can be verbose)
+            // print("DEBUG: Mouse moved in view: \(event.locationInWindow)")
+        }
+        
+        // Mouse event handling
         override func mouseDown(with event: NSEvent) {
+            // Remove verbose logging
             super.mouseDown(with: event)
             delegate?.handleMouseDown(event)
         }
         
         override func mouseDragged(with event: NSEvent) {
+            // Remove verbose logging
             super.mouseDragged(with: event)
             delegate?.handleMouseDragged(event)
         }
         
         override func mouseUp(with event: NSEvent) {
+            // Remove verbose logging
             super.mouseUp(with: event)
             delegate?.handleMouseUp(event)
         }
@@ -225,22 +337,32 @@ struct ImageDrawingView: NSViewRepresentable {
             
             guard let delegate = delegate,
                   let viewModel = delegate.parent.viewModel as ImageAnnotationViewModel?,
-                  let image = self.image else { return }
+                  let image = self.image else { 
+                return
+            }
             
             // Only proceed if the current index is valid
-            guard viewModel.imageURLs.indices.contains(viewModel.currentImageIndex) else { return }
+            guard viewModel.imageURLs.indices.contains(viewModel.currentImageIndex) else {
+                return
+            }
             
             let currentIndex = viewModel.currentImageIndex
             let imageFrame = self.imageFrame()
             
-            // Log actual drawing dimensions for debugging
-            print("DEBUG: Drawing image at: \(imageFrame.origin.x), \(imageFrame.origin.y), \(imageFrame.width) x \(imageFrame.height)")
+            // Check if we have a valid image frame
+            if imageFrame.width <= 0 || imageFrame.height <= 0 {
+                return
+            }
             
+            // Calculate the scale factors
             let xScale = imageFrame.width / image.size.width
             let yScale = imageFrame.height / image.size.height
             
             // Draw saved annotations
             let annotations = viewModel.imageAnnotations[currentIndex].annotations
+            if !annotations.isEmpty {
+                print("DEBUG: Drawing \(annotations.count) saved annotations")
+            }
             for annotation in annotations {
                 let rect = annotation.rect.toCGRect(in: image.size)
                 let viewRect = NSRect(
@@ -273,6 +395,12 @@ struct ImageDrawingView: NSViewRepresentable {
                 if viewModel.isDrawing {
                     // Convert the current rect to view coordinates
                     let rect = viewModel.currentRect
+                    
+                    // Skip empty rectangles
+                    if rect.width <= 0 || rect.height <= 0 {
+                        return
+                    }
+                    
                     drawRect = NSRect(
                         x: imageFrame.minX + (rect.minX * xScale),
                         y: imageFrame.minY + (rect.minY * yScale),
@@ -292,10 +420,18 @@ struct ImageDrawingView: NSViewRepresentable {
                     return
                 }
                 
-                NSColor.yellow.withAlphaComponent(0.3).setFill()
+                // Ensure the rectangle is valid before drawing
+                if drawRect.width <= 0 || drawRect.height <= 0 {
+                    return
+                }
+                
+                // Draw with a more visible color
+                NSColor.yellow.withAlphaComponent(0.5).setFill()
                 NSBezierPath(rect: drawRect).fill()
                 NSColor.yellow.setStroke()
-                NSBezierPath(rect: drawRect).stroke()
+                let path = NSBezierPath(rect: drawRect)
+                path.lineWidth = 2.0
+                path.stroke()
             }
         }
         
@@ -308,7 +444,6 @@ struct ImageDrawingView: NSViewRepresentable {
             
             // Ensure view has proper dimensions - return centered but zero-sized rect if view is not yet sized
             if viewSize.width <= 0 || viewSize.height <= 0 {
-                print("DEBUG: View has invalid dimensions: \(viewSize). Deferring image scaling.")
                 return NSRect(x: self.bounds.midX, y: self.bounds.midY, width: 0, height: 0)
             }
             
@@ -316,7 +451,6 @@ struct ImageDrawingView: NSViewRepresentable {
             
             // Ensure we're dealing with valid image dimensions
             guard imageSize.width > 0, imageSize.height > 0 else {
-                print("DEBUG: Invalid image dimensions: \(imageSize)")
                 return .zero
             }
             
@@ -324,8 +458,6 @@ struct ImageDrawingView: NSViewRepresentable {
             let padding: CGFloat = 20
             let availableWidth = viewSize.width - (padding * 2)
             let availableHeight = viewSize.height - (padding * 2)
-            
-            print("DEBUG: Available space: \(availableWidth) x \(availableHeight)")
             
             // Calculate the scaling factors to fit within available space
             let widthRatio = availableWidth / imageSize.width
@@ -350,12 +482,6 @@ struct ImageDrawingView: NSViewRepresentable {
                 width: scaledWidth,
                 height: scaledHeight
             )
-            
-            print("DEBUG: Image scaling - view: \(viewSize.width)x\(viewSize.height), " +
-                  "image: \(imageSize.width)x\(imageSize.height), " +
-                  "scaled: \(scaledWidth)x\(scaledHeight), " +
-                  "ratio: \(scaleFactor), " +
-                  "position: (\(xOffset), \(yOffset))")
             
             return drawingRect
         }

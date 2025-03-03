@@ -193,24 +193,34 @@ class ImageAnnotationViewModel: ObservableObject {
     
     // Rectangle drawing methods
     func startDrawing(at point: CGPoint) {
-        print("DEBUG: startDrawing at point: \(point)")
+        print("DEBUG: Starting drawing at: \(point)")
         isDrawing = true
-        currentRect = CGRect(origin: point, size: .zero)
+        currentRect = CGRect(origin: point, size: CGSize(width: 1, height: 1))  // Start with a 1x1 rect instead of zero
     }
     
     func updateDrawing(to point: CGPoint, from startPoint: CGPoint) {
-        guard isDrawing else { return }
+        guard isDrawing else { 
+            return 
+        }
         
         let minX = min(startPoint.x, point.x)
         let minY = min(startPoint.y, point.y)
-        let width = abs(point.x - startPoint.x)
-        let height = abs(point.y - startPoint.y)
+        let width = max(abs(point.x - startPoint.x), 1)  // Ensure minimum width of 1
+        let height = max(abs(point.y - startPoint.y), 1)  // Ensure minimum height of 1
         
-        currentRect = CGRect(x: minX, y: minY, width: width, height: height)
+        let newRect = CGRect(x: minX, y: minY, width: width, height: height)
+        
+        // Only update if the rectangle has changed significantly
+        if abs(newRect.width - currentRect.width) > 0.1 || abs(newRect.height - currentRect.height) > 0.1 ||
+           abs(newRect.minX - currentRect.minX) > 0.1 || abs(newRect.minY - currentRect.minY) > 0.1 {
+            currentRect = newRect
+            // Force a redraw by setting isDrawing again
+            isDrawing = true
+        }
     }
     
     func endDrawing() {
-        print("DEBUG: endDrawing - rect: \(currentRect)")
+        print("DEBUG: Finished drawing - rect: \(currentRect)")
         isDrawing = false
         // Don't create annotations for very small rectangles (likely accidental)
         if currentRect.width > 10 && currentRect.height > 10 {
@@ -222,7 +232,6 @@ class ImageAnnotationViewModel: ObservableObject {
                 quantity: 1,
                 rect: AnnotationRect(from: currentRect, in: currentImageSize)
             )
-            print("DEBUG: Created temporary annotation")
         } else {
             print("DEBUG: Rectangle too small, clearing drawing")
             clearCurrentDrawing()
@@ -230,7 +239,6 @@ class ImageAnnotationViewModel: ObservableObject {
     }
     
     func clearCurrentDrawing() {
-        print("DEBUG: clearCurrentDrawing")
         isDrawing = false
         currentRect = .zero
         tempAnnotation = nil
@@ -239,7 +247,6 @@ class ImageAnnotationViewModel: ObservableObject {
     
     // Save the temporary annotation
     func saveCurrentAnnotation() async {
-        print("DEBUG: saveCurrentAnnotation")
         guard let tempAnnotation = tempAnnotation,
               currentImageIndex >= 0 && currentImageIndex < imageAnnotations.count else {
             print("DEBUG: Cannot save annotation - tempAnnotation is nil or invalid image index")

@@ -10,20 +10,26 @@ struct AnnotationRect: Codable, Identifiable, Equatable {
     
     // Convert from SwiftUI coordinates to normalized coordinates (0-1)
     init(from rect: CGRect, in frameSize: CGSize) {
-        self.x = rect.minX / frameSize.width
-        self.y = rect.minY / frameSize.height
-        self.width = rect.width / frameSize.width
-        self.height = rect.height / frameSize.height
+        // Ensure we're not dividing by zero
+        let safeWidth = max(frameSize.width, 1)
+        let safeHeight = max(frameSize.height, 1)
+        
+        self.x = rect.minX / safeWidth
+        self.y = rect.minY / safeHeight
+        self.width = rect.width / safeWidth
+        self.height = rect.height / safeHeight
     }
     
     // Convert back to CGRect for display
     func toCGRect(in frameSize: CGSize) -> CGRect {
-        return CGRect(
+        let rect = CGRect(
             x: x * frameSize.width,
             y: y * frameSize.height,
             width: width * frameSize.width,
             height: height * frameSize.height
         )
+        
+        return rect
     }
 }
 
