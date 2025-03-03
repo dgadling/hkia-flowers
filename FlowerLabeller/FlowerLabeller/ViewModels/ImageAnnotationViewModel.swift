@@ -98,14 +98,74 @@ class ImageAnnotationViewModel: ObservableObject {
         
         let url = imageURLs[currentImageIndex]
         print("DEBUG: Loading image from URL: \(url.path)")
+        
         if let image = NSImage(contentsOf: url) {
             print("DEBUG: Image loaded successfully, size: \(image.size)")
-            currentImage = image
-            currentImageSize = image.size
+            
+            let processedImage: NSImage
+            
+            // Check if the image is extremely large and might cause performance issues
+            if image.size.width > 4000 || image.size.height > 4000 {
+                print("DEBUG: Image is very large (\(image.size.width) x \(image.size.height)), downsampling for better performance")
+                processedImage = downsampleLargeImage(image)
+                print("DEBUG: Downsampled to \(processedImage.size.width) x \(processedImage.size.height)")
+            } else {
+                processedImage = image
+            }
+            
+            // Store image and its dimensions
+            currentImage = processedImage
+            currentImageSize = processedImage.size
+            
+            // Log memory usage for debugging
+            let imageMemorySize = Int(processedImage.size.width * processedImage.size.height * 4) // Approximate size in bytes (4 bytes per pixel)
+            let formattedSize = formatByteSize(imageMemorySize)
+            print("DEBUG: Estimated image memory usage: \(formattedSize)")
         } else {
             print("DEBUG: Failed to load image from URL: \(url.path)")
             currentImage = nil
         }
+    }
+    
+    // Downsample a large image to a more manageable size while maintaining aspect ratio
+    private func downsampleLargeImage(_ image: NSImage) -> NSImage {
+        // Maximum dimensions we want to allow (4000px on the longest side is usually plenty)
+        let maxDimension: CGFloat = 3000
+        
+        // Calculate the target size maintaining aspect ratio
+        let originalSize = image.size
+        var targetSize = originalSize
+        
+        if originalSize.width > originalSize.height && originalSize.width > maxDimension {
+            // Landscape orientation
+            let scale = maxDimension / originalSize.width
+            targetSize = CGSize(width: maxDimension, height: originalSize.height * scale)
+        } else if originalSize.height > maxDimension {
+            // Portrait orientation
+            let scale = maxDimension / originalSize.height
+            targetSize = CGSize(width: originalSize.width * scale, height: maxDimension)
+        }
+        
+        // Create a new NSImage with the target size
+        let newImage = NSImage(size: targetSize)
+        
+        newImage.lockFocus()
+        
+        // Draw the original image in the new size
+        NSGraphicsContext.current?.imageInterpolation = .high
+        image.draw(in: NSRect(origin: .zero, size: targetSize))
+        
+        newImage.unlockFocus()
+        
+        return newImage
+    }
+    
+    // Helper to format byte size to human-readable format
+    private func formatByteSize(_ bytes: Int) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useAll]
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: Int64(bytes))
     }
     
     // Navigation methods

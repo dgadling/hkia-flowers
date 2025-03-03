@@ -48,6 +48,7 @@ struct ContentView: View {
     @EnvironmentObject private var keyboardHandler: KeyboardHandler
     @State private var exportMessage: String?
     @State private var showingExportMessage = false
+    @State private var showingHelp = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -64,6 +65,15 @@ struct ContentView: View {
                 .controlSize(.large)
                 
                 Spacer()
+                
+                Button(action: {
+                    showingHelp = true
+                }) {
+                    Label("Help", systemImage: "questionmark.circle")
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .keyboardShortcut("?", modifiers: [])
                 
                 if !viewModel.imageURLs.isEmpty {
                     Button(action: {
@@ -83,16 +93,45 @@ struct ContentView: View {
             
             // Empty state
             if viewModel.imageURLs.isEmpty {
+                Spacer()
                 VStack(spacing: 20) {
                     Image(systemName: "photo.on.rectangle.angled")
                         .font(.system(size: 60))
                         .foregroundColor(.secondary)
-                    Text("Select a directory containing JPG images to start labeling")
-                        .font(.title2)
+                    
+                    Text("No Images Loaded")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    
+                    Text("Select a directory to begin labelling flowers")
                         .foregroundColor(.secondary)
+                    
+                    Button(action: {
+                        Task {
+                            await viewModel.selectDirectory()
+                        }
+                    }) {
+                        Label("Select Directory", systemImage: "folder")
+                            .font(.headline)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .keyboardShortcut("o", modifiers: .command)
+                    
+                    Button(action: {
+                        showingHelp = true
+                    }) {
+                        Label("View Help", systemImage: "questionmark.circle")
+                            .font(.headline)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.large)
+                    .padding(.top)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding()
+                Spacer()
             } else {
+                // Workspace when images are loaded
                 workspaceView
             }
             
@@ -147,10 +186,14 @@ struct ContentView: View {
                 }
             }
         }
+        .sheet(isPresented: $showingHelp) {
+            HelpView(isPresented: $showingHelp)
+        }
     }
     
     private var workspaceView: some View {
-        VStack {
+        VStack(spacing: 8) {
+            // Toolbar with filename and actions
             HStack {
                 Text(viewModel.imageURLs[viewModel.currentImageIndex].lastPathComponent)
                     .font(.headline)
@@ -158,6 +201,12 @@ struct ContentView: View {
                     .truncationMode(.middle)
                 
                 Spacer()
+                
+                Button("Help") {
+                    showingHelp = true
+                }
+                .keyboardShortcut("?", modifiers: [])
+                .buttonStyle(.bordered)
                 
                 Button("Export Annotations") {
                     Task {
@@ -181,31 +230,61 @@ struct ContentView: View {
             }
             .padding(.horizontal)
             
-            // Image with annotation overlay
-            ZStack {
-                // Drawing view
-                ImageDrawingView(viewModel: viewModel)
-                    .layoutPriority(1)
-                
-                // Annotation form when an area is selected
-                if viewModel.tempAnnotation != nil {
-                    VStack {
-                        Spacer()
-                        HStack {
+            // Main content area with image and annotation controls
+            GeometryReader { geometry in
+                ZStack {
+                    // Drawing view with proper containment - important to use a fixed frame
+                    ImageDrawingView(viewModel: viewModel)
+                        .frame(
+                            width: geometry.size.width - 16,  // Account for padding
+                            height: geometry.size.height - 60, // Allow space for navigation controls
+                            alignment: .center 
+                        )
+                        .fixedSize(horizontal: false, vertical: false) // Prevent image size from influencing layout
+                        .clipped() // Ensure image doesn't overflow bounds
+                        .background(
+                            RoundedRectangle(cornerRadius: 4)
+                                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                .background(Color.black.opacity(0.05))
+                        )
+                        .layoutPriority(1)
+                    
+                    // Annotation form when an area is selected
+                    if viewModel.tempAnnotation != nil {
+                        VStack {
                             Spacer()
-                            AnnotationFormView(viewModel: viewModel)
-                                .padding()
+                            HStack {
+                                Spacer()
+                                AnnotationFormView(viewModel: viewModel)
+                                    .padding()
+                            }
                         }
                     }
-                }
-                
-                // Navigation controls at the bottom
-                VStack {
-                    Spacer()
-                    NavigationControlView(viewModel: viewModel)
-                        .padding(.bottom)
+                    
+                    // Navigation controls at the bottom
+                    VStack {
+                        Spacer()
+                        NavigationControlView(viewModel: viewModel)
+                            .padding(.bottom, 8)
+                    }
                 }
             }
+            .padding(8)
+            
+            // Status indicator for current image
+            HStack {
+                Text("Image \(viewModel.currentImageIndex + 1) of \(viewModel.imageURLs.count)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Spacer()
+                if !viewModel.imageURLs.isEmpty {
+                    Text("\(viewModel.imageAnnotations[viewModel.currentImageIndex].annotations.count) annotations")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 4)
         }
     }
 }
