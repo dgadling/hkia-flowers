@@ -33,7 +33,6 @@ class KeyboardEventHandler: ObservableObject {
                     Task { @MainActor in
                         if viewModel.tempAnnotation != nil {
                             await viewModel.saveCurrentAnnotation()
-                            await viewModel.nextImage()
                         }
                     }
                 }

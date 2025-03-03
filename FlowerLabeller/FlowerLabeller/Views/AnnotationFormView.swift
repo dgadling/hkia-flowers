@@ -36,7 +36,6 @@ struct AnnotationFormView: View {
                 Button("Save") {
                     Task {
                         await viewModel.saveCurrentAnnotation()
-                        await viewModel.nextImage()
                     }
                 }
                 .keyboardShortcut(.return, modifiers: [])
