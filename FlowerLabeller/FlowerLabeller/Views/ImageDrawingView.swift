@@ -71,20 +71,37 @@ struct ImageDrawingView: NSViewRepresentable {
         var parent: ImageDrawingView
         var startPoint: NSPoint?
         weak var imageView: DraggableImageView?
+        // Add a local cache for the original image size to avoid actor isolation issues
+        private var cachedOriginalImageSize: CGSize = .zero
         
         init(_ parent: ImageDrawingView) {
             self.parent = parent
             print("DEBUG: Coordinator initialized")
+            super.init()
+            // Initialize cached size after all properties are initialized
+            Task { @MainActor in
+                self.cachedOriginalImageSize = parent.viewModel.originalImageSize
+            }
+        }
+        
+        // Add a method to update the cached original image size
+        func updateCachedImageSize() {
+            Task { @MainActor in
+                self.cachedOriginalImageSize = parent.viewModel.originalImageSize
+            }
         }
         
         @objc func handleMouseDown(_ event: NSEvent) {
             // Reduce verbosity by limiting debug output to essential information
             
             guard let imageView = imageView,
-                  let image = imageView.image else {
+                  imageView.image != nil else {
                 print("DEBUG: handleMouseDown - imageView or image is nil")
                 return
             }
+            
+            // Update cached size before using it
+            updateCachedImageSize()
             
             // Get location directly in the view's coordinate system
             let viewPoint = imageView.convert(event.locationInWindow, from: nil)
@@ -100,12 +117,15 @@ struct ImageDrawingView: NSViewRepresentable {
             let relativeX = (viewPoint.x - imageFrame.minX) / imageFrame.width
             let relativeY = (viewPoint.y - imageFrame.minY) / imageFrame.height
             
+            // Use the cached original image size
+            let originalSize = cachedOriginalImageSize
+            // Calculate point using original image dimensions instead of potentially downsampled image
             let imagePoint = NSPoint(
-                x: relativeX * image.size.width,
-                y: relativeY * image.size.height
+                x: relativeX * originalSize.width,
+                y: relativeY * originalSize.height
             )
             
-            print("DEBUG: Mouse down at image point: \(imagePoint)")
+            print("DEBUG: Mouse down at image point: \(imagePoint) (original image coordinates)")
             
             startPoint = viewPoint // Store the view point
             
@@ -119,7 +139,7 @@ struct ImageDrawingView: NSViewRepresentable {
             // Less verbose logging for mouse dragging
             
             guard let imageView = imageView,
-                  let image = imageView.image,
+                  imageView.image != nil,
                   let startPoint = startPoint else {
                 return
             }
@@ -130,20 +150,23 @@ struct ImageDrawingView: NSViewRepresentable {
             // Get image frame
             let imageFrame = imageView.imageFrame()
             
+            // Use the cached original image size
+            let originalSize = cachedOriginalImageSize
+            
             // Calculate initial image point based on stored startPoint
             let startRelativeX = (startPoint.x - imageFrame.minX) / imageFrame.width
             let startRelativeY = (startPoint.y - imageFrame.minY) / imageFrame.height
             let startImagePoint = CGPoint(
-                x: startRelativeX * image.size.width,
-                y: startRelativeY * image.size.height
+                x: startRelativeX * originalSize.width,
+                y: startRelativeY * originalSize.height
             )
             
             // Calculate current image point
             let currentRelativeX = (viewPoint.x - imageFrame.minX) / imageFrame.width
             let currentRelativeY = (viewPoint.y - imageFrame.minY) / imageFrame.height
             let currentImagePoint = CGPoint(
-                x: currentRelativeX * image.size.width,
-                y: currentRelativeY * image.size.height
+                x: currentRelativeX * originalSize.width,
+                y: currentRelativeY * originalSize.height
             )
             
             // Update the rectangle - use Task to call actor-isolated method
@@ -337,7 +360,7 @@ struct ImageDrawingView: NSViewRepresentable {
             
             guard let delegate = delegate,
                   let viewModel = delegate.parent.viewModel as ImageAnnotationViewModel?,
-                  let image = self.image else { 
+                  self.image != nil else { 
                 return
             }
             
@@ -354,9 +377,12 @@ struct ImageDrawingView: NSViewRepresentable {
                 return
             }
             
+            // Use the originalImageSize for coordinate conversion
+            let originalImageSize = viewModel.originalImageSize
+            
             // Calculate the scale factors
-            let xScale = imageFrame.width / image.size.width
-            let yScale = imageFrame.height / image.size.height
+            let xScale = imageFrame.width / originalImageSize.width
+            let yScale = imageFrame.height / originalImageSize.height
             
             // Draw saved annotations
             let annotations = viewModel.imageAnnotations[currentIndex].annotations
@@ -364,7 +390,8 @@ struct ImageDrawingView: NSViewRepresentable {
                 print("DEBUG: Drawing \(annotations.count) saved annotations")
             }
             for annotation in annotations {
-                let rect = annotation.rect.toCGRect(in: image.size)
+                // Convert using the original image size
+                let rect = annotation.rect.toCGRect(in: originalImageSize)
                 let viewRect = NSRect(
                     x: imageFrame.minX + (rect.minX * xScale),
                     y: imageFrame.minY + (rect.minY * yScale),
@@ -408,8 +435,8 @@ struct ImageDrawingView: NSViewRepresentable {
                         height: rect.height * yScale
                     )
                 } else if let tempAnnotation = viewModel.tempAnnotation {
-                    // Draw the temporary annotation
-                    let rect = tempAnnotation.rect.toCGRect(in: image.size)
+                    // Draw the temporary annotation using the original image size
+                    let rect = tempAnnotation.rect.toCGRect(in: originalImageSize)
                     drawRect = NSRect(
                         x: imageFrame.minX + (rect.minX * xScale),
                         y: imageFrame.minY + (rect.minY * yScale),

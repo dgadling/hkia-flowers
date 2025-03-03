@@ -4,6 +4,9 @@ import UniformTypeIdentifiers
 
 @MainActor
 class ImageAnnotationViewModel: ObservableObject {
+    // Singleton instance for accessing from AnnotationDataset
+    static var shared = ImageAnnotationViewModel()
+    
     // Current state
     @Published var imageURLs: [URL] = []
     @Published var currentImageIndex: Int = 0
@@ -23,6 +26,11 @@ class ImageAnnotationViewModel: ObservableObject {
     
     // Image size for calculating normalized coordinates
     @Published var currentImageSize: CGSize = .zero
+    // Original image size before any downsampling (for annotation coordinates)
+    @Published var originalImageSize: CGSize = .zero
+    
+    // Dictionary to store original image sizes for all images by filename
+    var originalImagesSize: [String: CGSize] = [:]
     
     init() {
         print("DEBUG: ImageAnnotationViewModel initialized")
@@ -97,10 +105,17 @@ class ImageAnnotationViewModel: ObservableObject {
         }
         
         let url = imageURLs[currentImageIndex]
+        let filename = url.lastPathComponent
         print("DEBUG: Loading image from URL: \(url.path)")
         
         if let image = NSImage(contentsOf: url) {
             print("DEBUG: Image loaded successfully, size: \(image.size)")
+            
+            // Store the original image size for annotation purposes
+            originalImageSize = image.size
+            
+            // Also store in our dictionary for later use when exporting
+            originalImagesSize[filename] = image.size
             
             let processedImage: NSImage
             
@@ -225,13 +240,15 @@ class ImageAnnotationViewModel: ObservableObject {
         // Don't create annotations for very small rectangles (likely accidental)
         if currentRect.width > 10 && currentRect.height > 10 {
             // Create a temporary annotation that will be confirmed by the user
+            // Use the original image size instead of potentially downsampled currentImageSize
             tempAnnotation = FlowerAnnotation(
                 species: "",
                 color: "",
                 pattern: "",
                 quantity: 1,
-                rect: AnnotationRect(from: currentRect, in: currentImageSize)
+                rect: AnnotationRect(from: currentRect, in: originalImageSize)
             )
+            print("DEBUG: Created tempAnnotation with rect coordinates relative to original image size: \(originalImageSize)")
         } else {
             print("DEBUG: Rectangle too small, clearing drawing")
             clearCurrentDrawing()
@@ -282,6 +299,35 @@ class ImageAnnotationViewModel: ObservableObject {
     // Export annotations to Create ML format
     func exportAnnotations() async -> URL? {
         print("DEBUG: exportAnnotations called")
+        
+        // Check if we have annotations to export
+        let totalAnnotations = imageAnnotations.reduce(0) { $0 + $1.annotations.count }
+        if totalAnnotations == 0 {
+            print("DEBUG: No annotations to export")
+        } else {
+            print("DEBUG: Exporting \(totalAnnotations) annotations across \(imageAnnotations.count) images")
+            
+            // Print some example values to verify the coordinate format
+            if let firstImageWithAnnotations = imageAnnotations.first(where: { !$0.annotations.isEmpty }),
+               let firstAnnotation = firstImageWithAnnotations.annotations.first {
+                let filename = firstImageWithAnnotations.filename
+                let originalSize = originalImagesSize[filename] ?? CGSize(width: 1000, height: 1000)
+                
+                let normalizedCoords = (
+                    x: firstAnnotation.rect.x,
+                    y: firstAnnotation.rect.y,
+                    width: firstAnnotation.rect.width,
+                    height: firstAnnotation.rect.height
+                )
+                
+                let absoluteCoords = firstAnnotation.rect.toAbsoluteCoordinates(in: originalSize)
+                
+                print("DEBUG: Image \(filename) has original size of \(originalSize.width) x \(originalSize.height)")
+                print("DEBUG: Example annotation stores normalized coordinates: x=\(normalizedCoords.x), y=\(normalizedCoords.y), width=\(normalizedCoords.width), height=\(normalizedCoords.height)")
+                print("DEBUG: Will be exported as absolute coordinates: x=\(absoluteCoords.x), y=\(absoluteCoords.y), width=\(absoluteCoords.width), height=\(absoluteCoords.height)")
+            }
+        }
+        
         let dataset = AnnotationDataset(from: imageAnnotations)
         
         // Convert to JSON
